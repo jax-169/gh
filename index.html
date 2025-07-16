@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>武胜县小学期末考试成绩查询系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        
+        body {
+            background-color: #005bac;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%2300529e"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%2300438a" stroke-width="1"/></svg>');
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: containerAppear 0.6s ease;
+        }
+        
+        @keyframes containerAppear {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header {
+            background: linear-gradient(to right, #00529e, #0071c5);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(to right, #ffde59, #ff9d00);
+        }
+        
+        .logo {
+            position: absolute;
+            left: 25px;
+            top: 25px;
+            font-size: 45px;
+        }
+        
+        .system-title {
+            margin-top: 15px;
+            font-size: 28px;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 3px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .system-subtitle {
+            font-size: 16px;
+            margin-top: 10px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .query-panel {
+            padding: 30px 30px 15px;
+        }
+        
+        .form-title {
+            color: #0071c5;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #f0f0f0;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-title i {
+            margin-right: 12px;
+            color: #ff9d00;
+            font-size: 28px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px 20px;
+        }
+        
+        .form-group {
+            padding: 0 10px;
+            margin-bottom: 20px;
+            flex: 0 0 50%;
+        }
+        
+        .form-group.full {
+            flex: 0 0 100%;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            font-size: 15px;
+        }
+        
+        .form-group input, 
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f9f9f9;
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus {
+            border-color: #0071c5;
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 113, 197, 0.3);
+            background: #fff;
+        }
+        
+        .captcha-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .captcha-box {
+            background: #f0f5ff;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 24px;
+            min-width: 120px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            color: #1e5799;
+            letter-spacing: 2px;
+        }
+        
+        .captcha-input {
+            flex: 1;
+        }
+        
+        .captcha-refresh {
+            background: #e9ecef;
+            border: 2px solid #ddd;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+        
+        .captcha-refresh:hover {
+            background: #d7dee8;
+            transform: rotate(90deg);
+        }
+        
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, #00529e, #0071c5);
+            color: white;
+            font-size: 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+            letter-spacing: 3px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(to right, #004080, #00529e);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+            transform: translateY(-2px);
+            letter-spacing: 4px;
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .result-panel {
+            padding: 30px;
+            display: none;
+        }
+        
+        .result-title {
+            text-align: center;
+            color: #ff0000;
+            font-size: 32px;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 3px rgba(0,0,0,0.1);
+            animation: shake 0.8s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        @keyframes shake {
+            10%, 90% { transform: translateX(-1px); }
+            20%, 80% { transform: translateX(2px); }
+            30%, 50%, 70% { transform: translateX(-4px); }
+            40%, 60% { transform: translateX(4px); }
+        }
+        
+        .result-message {
+            background: #fff9f9;
+            border: 3px solid #ffcccc;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+            line-height: 1.8;
+            position: relative;
+        }
+        
+        .warning-icon {
+            color: #ff0000;
+            font-size: 60px;
+            display: block;
+            text-align: center;
+            margin: 20px 0;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .redirect {
+            text-align: center;
+            margin: 25px 0;
+            font-size: 15px;
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        .footer {
+            background: #f5f5f5;
+            padding: 20px 30px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 13px;
+            text-align: center;
+        }
+        
+        .copyright {
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        .education-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .education-links a {
+            color: #0071c5;
+            text-decoration: none;
+            transition: color 0.3s;
+            white-space: nowrap;
+        }
+        
+        .education-links a:hover {
+            color: #e53935;
+            text-decoration: underline;
+        }
+        
+        .countdown {
+            font-weight: bold;
+            font-size: 20px;
+            color: #e53935;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1 class="system-title">武胜县2024年小学期末考试成绩查询系统</h1>
+            <p class="system-subtitle">武胜县教育局主办 - 成绩查询唯一指定平台</p>
+        </div>
+        
+        <div class="query-panel" id="queryPanel">
+            <h2 class="form-title"><i class="fas fa-search"></i>学生成绩信息查询</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">学生姓名：</label>
+                    <input type="text" id="name" placeholder="请输入学生姓名">
+                </div>
+                
+                <div class="form-group">
+                    <label for="student-id">学籍号：</label>
+                    <input type="text" id="student-id" placeholder="请输入10位学籍号">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="school">所在学校：</label>
+                    <select id="school">
+                        <option value="yankou" selected>沿口小学</option>
+                        <option value="minzu">民族小学</option>
+                        <option value="longnvhu">龙女湖小学</option>
+                        <option value="jialing">嘉陵小学</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="grade">年级：</label>
+                    <select id="grade">
+                        <option value="">请选择年级</option>
+                        <option value="1">一年级</option>
+                        <option value="2">二年级</option>
+                        <option value="3">三年级</option>
+                        <option value="4">四年级</option>
+                        <option value="5">五年级</option>
+                        <option value="6">六年级</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group full" id="classContainer">
+                    <label for="class">班级：</label>
+                    <select id="class">
+                        <option value="">请先选择年级</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group full">
+                <div class="captcha-container">
+                    <div class="captcha-box" id="captcha">5 + 3 = ?</div>
+                    <input type="text" class="captcha-input" id="captcha-input" placeholder="请输入计算结果">
+                    <button class="captcha-refresh" id="refresh-captcha">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group full">
+                <div style="background: #e6f3ff; border-left: 4px solid #0071c5; padding: 12px; margin: 15px 0; font-size: 14px;">
+                    <i class="fas fa-info-circle" style="color: #0071c5;"></i>
+                    提示：本系统仅提供本次期末考试成绩查询，最终成绩以学校通知为准
+                </div>
+            </div>
+            
+            <button class="submit-btn" id="submit-btn">
+                <i class="fas fa-check-circle"></i> 立即查询成绩
+            </button>
+        </div>
+        
+        <div class="result-panel" id="resultPanel">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="result-title">恭喜你被骗啦！</h2>
+            
+            <div class="result-message">
+                <p>中国反诈中心提示您，陌生链接不要点，千万不要相信第三方渠道的查分结果</p>
+                <p>暑假已经开始，祝你假期愉快！</p>
+            </div>
+            
+            <div class="redirect">
+                <p>页面将在 <span id="countdown" class="countdown">5</span> 秒后关闭</p>
+                <p>本系统仅供娱乐，请勿当真</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="education-links">
+                <a href="#">武胜县人民政府官网</a>
+                <a href="#">武胜县教育局</a>
+                <a href="#">四川省教育考试院</a>
+                <a href="#">武胜教育资源平台</a>
+                <a href="#">学籍管理系统入口</a>
+            </div>
+            <div class="copyright">
+                © 2024 武胜县教育局 版权所有 | 技术支持：武胜县教育信息中心
+                <br>
+                地址：武胜县沿口镇东街38号 | 电话：0826-6211000
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const schoolSelect = document.getElementById('school');
+            const gradeSelect = document.getElementById('grade');
+            const classSelect = document.getElementById('class');
+            const captchaBox = document.getElementById('captcha');
+            const captchaInput = document.getElementById('captcha-input');
+            const refreshBtn = document.getElementById('refresh-captcha');
+            const submitBtn = document.getElementById('submit-btn');
+            const queryPanel = document.getElementById('queryPanel');
+            const resultPanel = document.getElementById('resultPanel');
+            const countdownEl = document.getElementById('countdown');
+            
+            // 生成随机计算题验证码
+            function generateCaptcha() {
+                const num1 = Math.floor(Math.random() * 9) + 1;
+                const num2 = Math.floor(Math.random() * 9) + 1;
+                const operator = ['+', '-', '×'][Math.floor(Math.random() * 3)];
+                
+                let answer;
+                if (operator === '+') {
+                    answer = num1 + num2;
+                } else if (operator === '-') {
+                    answer = num1 - num2;
+                } else {
+                    answer = num1 * num2;
+                }
+                
+                captchaBox.dataset.answer = answer;
+                captchaBox.textContent = `${num1} ${operator} ${num2} = ?`;
+            }
+            
+            // 根据选择的年级生成班级选项
+            function generateClasses() {
+                const grade = gradeSelect.value;
+                if (!grade) return;
+                
+                classSelect.innerHTML = '';
+                
+                // 随机班级数量（18-25之间）
+                const classCount = Math.floor(Math.random() * 8) + 18;
+                
+                for (let i = 1; i <= classCount; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `${i}班`;
+                    classSelect.appendChild(option);
+                }
+            }
+            
+            // 初始化页面
+            generateCaptcha();
+            
+            // 年级选择事件监听
+            gradeSelect.addEventListener('change', generateClasses);
+            
+            // 刷新验证码
+            refreshBtn.addEventListener('click', generateCaptcha);
+            
+            // 提交按钮事件
+            submitBtn.addEventListener('click', function() {
+                const name = document.getElementById('name').value.trim();
+                const studentId = document.getElementById('student-id').value.trim();
+                const school = schoolSelect.value;
+                const grade = gradeSelect.value;
+                const cls = classSelect.value;
+                const userAnswer = parseInt(captchaInput.value.trim());
+                const correctAnswer = parseInt(captchaBox.dataset.answer);
+                
+                // 简单验证
+                if (!name) {
+                    alert('请输入学生姓名！');
+                    return;
+                }
+                
+                if (!studentId || studentId.length !== 10) {
+                    alert('请输入10位有效学籍号！');
+                    return;
+                }
+                
+                if (!grade) {
+                    alert('请选择年级！');
+                    return;
+                }
+                
+                if (!cls) {
+                    alert('请选择班级！');
+                    return;
+                }
+                
+                if (userAnswer !== correctAnswer) {
+                    alert('验证码计算错误，请重新输入！');
+                    generateCaptcha();
+                    return;
+                }
+                
+                // 切换到结果面板
+                queryPanel.style.display = 'none';
+                resultPanel.style.display = 'block';
+                
+                // 倒计时
+                let count = 5;
+                countdownEl.textContent = count;
+                
+                const countdownInterval = setInterval(() => {
+                    count--;
+                    countdownEl.textContent = count;
+                    
+                    if (count <= 0) {
+                        clearInterval(countdownInterval);
+                        // 创建关闭动画
+                        document.querySelector('.container').style.animation = 'containerAppear 0.6s reverse forwards';
+                        setTimeout(() => {
+                            alert('系统已关闭！祝大家暑假愉快！');
+                        }, 500);
+                    }
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>
